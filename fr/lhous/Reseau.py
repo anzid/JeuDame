@@ -92,27 +92,28 @@ class ChatClient(Frame):
     for y in xrange(0,4):
         for x in xrange(0,10):
             if (x+y)%2==1:
-                self.can.create_oval(5+x*60, 5+y*60, 55+x*60, 55+y*60, outline='black', fill='maroon')
+                self.pion[x][y]=self.can.create_oval(5+x*60, 5+y*60, 55+x*60, 55+y*60, outline='black', fill='maroon')
                 self.liste.append([x,y])
                 print("la liste des cases occupees est -> :",self.liste)
                 
     for y in xrange(6,10):
         for x in xrange(0,10):
             if (x+y)%2==1:
-                self.can.create_oval(5+x*60, 5+y*60, 55+x*60, 55+y*60, outline='black', fill='green')
+                self.pion_adverse[x][y]=self.can.create_oval(5+x*60, 5+y*60, 55+x*60, 55+y*60, outline='black', fill='green')
                 self.liste_adverse.append([x,y])
                 print("la liste des cases adverses occupees est -> :",self.liste_adverse)
     
     self.can.bind('<Button-1>',self.Clic) # évévement clic gauche (press)
     self.can.focus_set()
-    #self.receivedChats = Text(readChatGroup, bg="white", width=60, height=30, state=DISABLED)
-    #self.friends = Listbox(readChatGroup, bg="white", width=30, height=30)
-    self.can.grid(row=0, column=0, sticky=W+N+S, padx = (0,10))
-    #self.friends.grid(row=0, column=1, sticky=E+N+S)
+    self.receivedChats = Text(readChatGroup, bg="white", width=20, height=30, state=DISABLED)
+    self.friends = Listbox(readChatGroup, bg="white", width=20, height=30)
+    self.receivedChats.grid(row=0, column=0, sticky=W+N+S, padx = (0,10))
+    self.can.grid(row=0, column=1)
+    self.friends.grid(row=0, column=2, sticky=E+N+S)
 
     writeChatGroup = Frame(parentFrame)
     self.chatVar = StringVar()
-    self.chatField = Entry(writeChatGroup, width=80, textvariable=self.chatVar)
+    self.chatField = Entry(writeChatGroup, width=20, textvariable=self.chatVar)
     sendChatButton = Button(writeChatGroup, text="Send", width=10, command=self.handleSendChat)
     self.chatField.grid(row=0, column=0, sticky=W)
     sendChatButton.grid(row=0, column=1, padx=5)
@@ -241,6 +242,7 @@ class ChatClient(Frame):
             self.pion[current_a][current_b] = self.can.create_oval(5+current_a*60, 5+current_b*60, 55+current_a*60, 55+current_b*60, outline='black', fill='maroon')
             self.liste.remove([self.a,self.b])                          # retirer la case precedente de la liste des cases occupees 
             self.liste.append([current_a,current_b])          # ajouter la nouvelle case dans la liste des cases occupees
+            self.EnvoyerCoup()
         elif self.AutorisationCoup(self.a,self.b,current_a,current_b) == 1:
             print("vous devez monger le pion adverse")
         elif self.AutorisationCoup(self.a,self.b,current_a,current_b) == 2:
@@ -281,4 +283,9 @@ class ChatClient(Frame):
         resultat = 4 # deplacement non autoriser
 
     return resultat          
+      
+  def EnvoyerCoup(self):
+      for client in self.allClients.keys():
+          msg = str(self.liste).strip('[]') 
+          client.send(msg)
       
