@@ -10,6 +10,7 @@ from ttk import *
 from math import floor
 import socket
 import thread
+import json
 
 class ChatClient(Frame):
   
@@ -203,6 +204,7 @@ class ChatClient(Frame):
   
   def addChat(self, client, msg):
     self.receivedChats.config(state=NORMAL)
+    self.ReceiveCoup(msg)
     self.receivedChats.insert("end",client+": "+msg+"\n")
     self.receivedChats.config(state=DISABLED)
   
@@ -244,13 +246,13 @@ class ChatClient(Frame):
             self.liste.append([current_a,current_b])          # ajouter la nouvelle case dans la liste des cases occupees
             self.EnvoyerCoup()
         elif self.AutorisationCoup(self.a,self.b,current_a,current_b) == 1:
-            print("vous devez monger le pion adverse")
+            self.setStatus("vous devez monger le pion adverse")
         elif self.AutorisationCoup(self.a,self.b,current_a,current_b) == 2:
-            print("ce carreau est deja rempli")
+            self.setStatus("ce carreau est deja rempli")
         elif self.AutorisationCoup(self.a,self.b,current_a,current_b) == 3:
-            print("il faut ce deplacer sur les carreaux fonces")
+            self.setStatus("il faut ce deplacer sur les carreaux fonces")
         elif self.AutorisationCoup(self.a,self.b,current_a,current_b) == 4:
-            print("deplacement non autosier")
+            self.setStatus("deplacement non autosier")
         self.DETECTION_CLIC_SUR_OBJET = False  # pour l'attente d'une nouvelle clique sur un pion
                 
     else: # si on a pas cliquer precedemnt sur un pion
@@ -286,6 +288,17 @@ class ChatClient(Frame):
       
   def EnvoyerCoup(self):
       for client in self.allClients.keys():
-          msg = str(self.liste).strip('[]') 
+          msg = json.dumps(self.liste) 
           client.send(msg)
+          
+  def ReceiveCoup(self, msg):
+      liste = json.loads(msg)
+      for y in xrange(0,4):
+        for x in xrange(0,10):
+            if (x+y)%2==1:
+                self.can.delete(self,self.pion[x][y])
+      for x in xrange(0,len(liste)):
+        a = liste[x]  
+        #self.can.create(self,self.pion[a[0]][a[1]])
+        self.can.create_oval(5+a[0]*60, 5+a[1]*60, 55+a[0]*60, 55+a[1]*60, outline='black', fill='maroon')
       
