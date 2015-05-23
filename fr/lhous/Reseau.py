@@ -87,13 +87,14 @@ class ChatClient(Frame):
         for y in xrange(0,10):
             if (x+y)%2==1:
                 Carre = self.can.create_rectangle(x*width/10,y*width/10,(x+1)*width/10,(y+1)*width/10,fill='black')
-                self.liste.append([x,y])
-                print("la liste des cases occupees est -> :",self.liste)
+                
                 
     for y in xrange(0,4):
         for x in xrange(0,10):
             if (x+y)%2==1:
                 self.can.create_oval(5+x*60, 5+y*60, 55+x*60, 55+y*60, outline='black', fill='maroon')
+                self.liste.append([x,y])
+                print("la liste des cases occupees est -> :",self.liste)
                 
     for y in xrange(6,10):
         for x in xrange(0,10):
@@ -235,7 +236,7 @@ class ChatClient(Frame):
         current_b = int (floor(Y/60)) # la deuxieme coordinnee de la case a se deplacer
 
         if self.AutorisationCoup(self.a,self.b,current_a,current_b)==0: # coup autoriser
-            self.can.delete(self.readChatGroup,self.pion[self.a][self.b])                   # on efface le pion 
+            self.can.delete(self,self.pion[self.a][self.b])                   # on efface le pion 
             #creation d'un nouveau pion dans l'endroit souhaite
             self.pion[current_a][current_b] = self.can.create_oval(5+current_a*60, 5+current_b*60, 55+current_a*60, 55+current_b*60, outline='black', fill='maroon')
             self.liste.remove([self.a,self.b])                          # retirer la case precedente de la liste des cases occupees 
