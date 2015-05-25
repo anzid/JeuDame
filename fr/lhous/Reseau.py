@@ -93,20 +93,29 @@ class ChatClient(Frame):
     for y in xrange(0,4):
         for x in xrange(0,10):
             if (x+y)%2==1:
-                self.pion[x][y]=self.can.create_oval(5+x*60, 5+y*60, 55+x*60, 55+y*60, outline='black', fill='maroon')
-                self.liste.append([x,y])
+                self.pion_adverse[x][y]=self.can.create_oval(5+x*60, 5+y*60, 55+x*60, 55+y*60, outline='black', fill='green')
+                self.liste_adverse.append([x,y])
                 print("la liste des cases occupees est -> :",self.liste)
                 
     for y in xrange(6,10):
         for x in xrange(0,10):
             if (x+y)%2==1:
-                self.pion_adverse[x][y]=self.can.create_oval(5+x*60, 5+y*60, 55+x*60, 55+y*60, outline='black', fill='green')
-                self.liste_adverse.append([x,y])
+                self.pion[x][y]=self.can.create_oval(5+x*60, 5+y*60, 55+x*60, 55+y*60, outline='black', fill='maroon')
+                self.liste.append([x,y])
                 print("la liste des cases adverses occupees est -> :",self.liste_adverse)
     
     self.can.bind('<Button-1>',self.Clic) # évévement clic gauche (press)
     self.can.focus_set()
     self.receivedChats = Text(readChatGroup, bg="white", width=20, height=30, state=DISABLED)
+    scrollbar = Scrollbar(self.receivedChats)
+    scrollbar.pack(side=RIGHT, fill=Y)
+    listbox = Listbox(self.receivedChats, yscrollcommand=scrollbar.set)
+    #for i in range(1000):
+        #listbox.insert(END, str(i))
+    listbox.pack(side=LEFT, fill=BOTH)
+
+    scrollbar.config(command=listbox.yview)
+
     self.friends = Listbox(readChatGroup, bg="white", width=20, height=30)
     self.receivedChats.grid(row=0, column=0, sticky=W+N+S, padx = (0,10))
     self.can.grid(row=0, column=1)
@@ -281,7 +290,7 @@ class ChatClient(Frame):
 
     if (current_a+current_b)%2==0:
         resultat = 3 # FAUT SE DEPLACER SUR LES CARREAUX FONCE
-    if [a+1,b+1]!=[current_a,current_b] and [a-1,b+1] != [current_a,current_b]:
+    if [a+1,b-1]!=[current_a,current_b] and [a-1,b-1] != [current_a,current_b]:
         resultat = 4 # deplacement non autoriser
 
     return resultat          
@@ -296,9 +305,9 @@ class ChatClient(Frame):
       for y in xrange(0,4):
         for x in xrange(0,10):
             if (x+y)%2==1:
-                self.can.delete(self,self.pion[x][y])
+                self.can.delete(self,self.pion_adverse[x][y])
+                del(self.liste_adverse[:])
       for x in xrange(0,len(liste)):
         a = liste[x]  
-        #self.can.create(self,self.pion[a[0]][a[1]])
-        self.can.create_oval(5+a[0]*60, 5+a[1]*60, 55+a[0]*60, 55+a[1]*60, outline='black', fill='maroon')
-      
+        self.can.create_oval(5+(9-a[0])*60, 5+(9-a[1])*60, 55+(9-a[0])*60, 55+(9-a[1])*60, outline='black', fill='green')
+        self.liste_adverse.append(liste[x])
