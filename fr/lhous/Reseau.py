@@ -11,6 +11,7 @@ from math import floor
 import socket
 import thread
 import json
+import time
 
 class ChatClient(Frame):
   
@@ -24,6 +25,8 @@ class ChatClient(Frame):
     self.buffsize = 1024
     self.allClients = {}
     self.counter = 0
+    self.laMain = 0
+    self.tic = 0
   
   def initUI(self,fen1):
     self.fen1.title("Jeun de dame en ligne")
@@ -107,14 +110,13 @@ class ChatClient(Frame):
     self.can.bind('<Button-1>',self.Clic) # évévement clic gauche (press)
     self.can.focus_set()
     self.receivedChats = Text(readChatGroup, bg="white", width=20, height=30, state=DISABLED)
-    scrollbar = Scrollbar(self.receivedChats)
-    scrollbar.pack(side=RIGHT, fill=Y)
-    listbox = Listbox(self.receivedChats, yscrollcommand=scrollbar.set)
+    #scrollbar = Scrollbar(self.receivedChats)
+    #scrollbar.pack(side=RIGHT, fill=Y)
+    #listbox = Listbox(self.receivedChats, yscrollcommand=scrollbar.set)
     #for i in range(1000):
         #listbox.insert(END, str(i))
-    listbox.pack(side=LEFT, fill=BOTH)
-
-    scrollbar.config(command=listbox.yview)
+    #listbox.pack(side=LEFT, fill=BOTH)
+    #scrollbar.config(command=listbox.yview)
 
     self.friends = Listbox(readChatGroup, bg="white", width=20, height=30)
     self.receivedChats.grid(row=0, column=0, sticky=W+N+S, padx = (0,10))
@@ -182,6 +184,7 @@ class ChatClient(Frame):
         clientsoc.connect(clientaddr)
         self.setStatus("Connected to client on %s:%s" % clientaddr)
         self.clientStatus = 1
+        self.laMain = 1
         self.addClient(clientsoc, clientaddr)
         thread.start_new_thread(self.handleClientMessages, (clientsoc, clientaddr))
     except:
@@ -243,7 +246,7 @@ class ChatClient(Frame):
     Y = event.y
     print("Position du clic -> ",X,Y)
 
-    if self.DETECTION_CLIC_SUR_OBJET == True:  # si on avait cliquer precedement sur un pion
+    if self.DETECTION_CLIC_SUR_OBJET == True and self.laMain == 1:  # si on avait cliquer precedement sur un pion
         current_a = int (floor(X/60)) # la premiere coordonnee de la case a se deplacer
         current_b = int (floor(Y/60)) # la deuxieme coordinnee de la case a se deplacer
 
@@ -299,6 +302,7 @@ class ChatClient(Frame):
       for client in self.allClients.keys():
           msg = json.dumps(self.liste) 
           client.send(msg)
+          self.laMain = 0
           
   def ReceiveCoup(self, msg):
       liste = json.loads(msg)
@@ -311,3 +315,7 @@ class ChatClient(Frame):
         a = liste[x]  
         self.can.create_oval(5+(9-a[0])*60, 5+(9-a[1])*60, 55+(9-a[0])*60, 55+(9-a[1])*60, outline='black', fill='green')
         self.liste_adverse.append(liste[x])
+      self.tic = time.time()
+      while time.time() - self.tic < 10:
+          self.laMain = 1
+      self.EnvoyerCoup()
