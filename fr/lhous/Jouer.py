@@ -6,13 +6,14 @@ Created on 22 mai 2015
 from Tkinter import *
 from ttk import *
 from Reseau  import *
+from Timer import *
 
 
 
 def main():  
-  fen1 = Tk()
-  app = ChatClient(fen1)
-  fen1.mainloop()
+    fen1 = Tk()
+    app = ChatClient(fen1)  
+    fen1.mainloop()
  
   
       
@@ -21,4 +22,4 @@ def main():
       
 
 if __name__ == '__main__':
-  main()   
+    main()   

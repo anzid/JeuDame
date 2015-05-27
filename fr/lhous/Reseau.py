@@ -98,14 +98,14 @@ class ChatClient(Frame):
                 if (x+y)%2==1:
                     self.pion_adverse[x][y]=self.can.create_oval(5+x*60, 5+y*60, 55+x*60, 55+y*60, outline='black', fill='green')
                     self.liste_adverse.append([x,y])
-                    print("la liste des cases occupees est -> :",self.liste)
+                    print("la liste des cases adverses occupees est -> :",self.liste_adverse)
                 
         for y in xrange(6,10):
             for x in xrange(0,10):
                 if (x+y)%2==1:
                     self.pion[x][y]=self.can.create_oval(5+x*60, 5+y*60, 55+x*60, 55+y*60, outline='black', fill='maroon')
                     self.liste.append([x,y])
-                    print("la liste des cases adverses occupees est -> :",self.liste_adverse)
+                    print("la liste des cases occupees est -> :",self.liste)
     
         self.can.bind('<Button-1>',self.Clic) # évévement clic gauche (press)
         self.can.focus_set()
