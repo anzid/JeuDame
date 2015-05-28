@@ -32,8 +32,9 @@ demarrer votre serveur en remplissant le champs serveur de votre interface.
 
 Ajouter un client dans add freind en utilisant le host et le port de sans serveur
 
-nb: -l'ajout se fait dans un seul sans
-	-si les deux modules sont executés dans la meme machine vous devez entrer deux nuemeros de port differents
+nb: 
+-l'ajout se fait dans un seul sens
+-si les deux modules sont executés dans la meme machine vous devez entrer deux nuemeros de port differents
 	
 A vous de jouer:
 
