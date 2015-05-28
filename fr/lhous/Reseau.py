@@ -15,10 +15,11 @@ import time
 
 class ChatClient(Frame):
   
-    def __init__(self, fen1):   #constructeur 
+    #constructeur
+    def __init__(self, fen1):    
         Frame.__init__(self, fen1)
         self.fen1 = fen1
-        self.initUI(fen1)
+        self.initUI(fen1) #interface
         self.serverSoc = None
         self.serverStatus = 0
         self.clientStatus = 0
@@ -44,11 +45,9 @@ class ChatClient(Frame):
         parentFrame = Frame(self.fen1)
         parentFrame.grid(padx=padX, pady=padY, stick=E+W+N+S)
     
+        #les widget de connexion
         ipGroup = Frame(parentFrame)
-        serverLabel = Label(ipGroup, text="Set: ")
-        self.nameVar = StringVar()
-        self.nameVar.set("SDH")
-        nameField = Entry(ipGroup, width=10, textvariable=self.nameVar)
+        serverLabel = Label(ipGroup, text="Server: ")
         self.serverIPVar = StringVar()
         self.serverIPVar.set("127.0.0.1")
         serverIPField = Entry(ipGroup, width=15, textvariable=self.serverIPVar)
@@ -66,7 +65,6 @@ class ChatClient(Frame):
         clientSetButton = Button(ipGroup, text="Add", width=10, command=self.handleAddClient)
         Start = Button(ipGroup, text='Quitter', width=10, command = fen1.quit())
         serverLabel.grid(row=0, column=0)
-        nameField.grid(row=0, column=1)
         serverIPField.grid(row=0, column=2)
         serverPortField.grid(row=0, column=3)
         serverSetButton.grid(row=0, column=4, padx=5)
@@ -76,7 +74,8 @@ class ChatClient(Frame):
         clientSetButton.grid(row=0, column=8, padx=5)
         Start.grid(row=0, column=9)
     
-        readChatGroup = Frame(parentFrame)
+        # les wiget du jeu
+        jeu = Frame(parentFrame)
         width =600
         height =600
         self.a =0
@@ -86,7 +85,7 @@ class ChatClient(Frame):
         self.pion_adverse = [[0 for y in xrange(10)] for x in xrange(10)] # declaration de la liste des pions adverses
         self.liste = [] # la liste des cases ocupees
         self.liste_adverse = [] # la liste des caeses ocuppees par les pions adverses
-        self.can = Canvas(readChatGroup, width =width, height =height, bg ='ivory')
+        self.can = Canvas(jeu, width =width, height =height, bg ='ivory')
         for x in xrange(0,10):
             for y in xrange(0,10):
                 if (x+y)%2==1:
@@ -109,7 +108,7 @@ class ChatClient(Frame):
     
         self.can.bind('<Button-1>',self.Clic) # évévement clic gauche (press)
         self.can.focus_set()
-        self.receivedChats = Text(readChatGroup, bg="white", width=20, height=30, state=DISABLED)
+        self.receivedChats = Text(jeu, bg="white", width=20, height=30, state=DISABLED)
         #scrollbar = Scrollbar(self.receivedChats)
         #scrollbar.pack(side=RIGHT, fill=Y)
         #listbox = Listbox(self.receivedChats, yscrollcommand=scrollbar.set)
@@ -118,11 +117,12 @@ class ChatClient(Frame):
         #listbox.pack(side=LEFT, fill=BOTH)
         #scrollbar.config(command=listbox.yview)
 
-        self.friends = Listbox(readChatGroup, bg="white", width=20, height=30)
+        self.friends = Listbox(jeu, bg="white", width=20, height=30)
         self.receivedChats.grid(row=0, column=0, sticky=W+N+S, padx = (0,10))
         self.can.grid(row=0, column=1)
         self.friends.grid(row=0, column=2, sticky=E+N+S)
 
+        # wigets pour envoyer un message
         writeChatGroup = Frame(parentFrame)
         self.chatVar = StringVar()
         self.chatField = Entry(writeChatGroup, width=20, textvariable=self.chatVar)
@@ -135,7 +135,7 @@ class ChatClient(Frame):
         bottomLabel = Label(parentFrame, text="Created by Lhoussaine RACHDI")
     
         ipGroup.grid(row=0, column=0)
-        readChatGroup.grid(row=1, column=0)
+        jeu.grid(row=1, column=0)
         writeChatGroup.grid(row=2, column=0, pady=10)
         self.statusLabel.grid(row=3, column=0)
         bottomLabel.grid(row=4, column=0, pady=10)
@@ -159,9 +159,7 @@ class ChatClient(Frame):
             self.setStatus("Server listening on %s:%s" % serveraddr)
             thread.start_new_thread(self.listenClients,())
             self.serverStatus = 1
-            self.name = self.nameVar.get().replace(' ','')
-            if self.name == '':
-                self.name = "%s:%s" % serveraddr
+            
         except:
             self.setStatus("Error setting up server")
     
@@ -196,7 +194,7 @@ class ChatClient(Frame):
                 data = clientsoc.recv(self.buffsize)
                 if not data:
                     break
-                self.addChat("%s:%s" % clientaddr, data)
+                self.addChat("other" , data)
             except:
                 break
         self.removeClient(clientsoc, clientaddr)
@@ -223,11 +221,9 @@ class ChatClient(Frame):
     def addClient(self, clientsoc, clientaddr):
         self.allClients[clientsoc]=self.counter
         self.counter += 1
-        self.friends.insert(self.counter,"%s:%s" % clientaddr)
   
     def removeClient(self, clientsoc, clientaddr):
         print self.allClients
-        self.friends.delete(self.allClients[clientsoc])
         del self.allClients[clientsoc]
         print "tata"and self.allClients
   
@@ -236,11 +232,11 @@ class ChatClient(Frame):
         print msg
     
     def Clic(self, event):
-        """ Gestion de l'événement Clic gauche """
+        """ Gestion de l'événement Clic gauche, fait appel à autorisationCoup et envoyerCoup"""
         # position du pointeur de la souris
         X = event.x
         Y = event.y
-        changement = {}
+        changement = {} #une liste clés valeurs des cases changés (4 valeurs (0:4), les cles sont les coordonnees des cases 
         print("Position du clic -> ",X,Y)
 
         if self.DETECTION_CLIC_SUR_OBJET == True and self.laMain == 1:  # si on avait cliquer precedement sur un pion
@@ -301,27 +297,33 @@ class ChatClient(Frame):
       
     def EnvoyerCoup(self, changement ):
         for client in self.allClients.keys():
-            msg = json.dumps(changement) 
+            msg = json.dumps(changement) #convertir une liste clés vauleursen chaine de caractères
             print "ccc"
             print msg
             client.send(msg)
-        self.laMain = 0
+        self.laMain = 0     #laisser la main à l'adversaire
           
     def ReceiveCoup(self, msg):
-        liste = json.loads(msg)
-        print liste
-        for cle in liste.keys():
-            print cle
-            if liste[cle] == 0:
-                m = json.loads(cle)
-                print type(m)
-                self.can.delete(self, self.pion_adverse[9-m[0]][9-m[1]])
-                self.liste_adverse.remove([9-m[0],9-m[1]])
-            else:
-                a = json.loads(cle)
-                self.can.create_oval(5+(9-a[0])*60, 5+(9-a[1])*60, 55+(9-a[0])*60, 55+(9-a[1])*60, outline='black', fill='green')
-                self.liste_adverse.append([9-a[0],9-a[1]])
-        self.laMain = 1
+        try:    
+            liste = json.loads(msg) #convertir une chaine de caractères en liste
+            print liste
+            if type(liste) == type(dict()):
+                for cle in liste.keys():
+                    print cle
+                    if liste[cle] == 0: #effacer le pion adversaire
+                        m = json.loads(cle)     #convertir la valeur de la liste clés valeurs en chaine de caracteres
+                        print type(m)
+                        self.can.delete(self, self.pion_adverse[9-m[0]][9-m[1]])
+                        self.liste_adverse.remove([9-m[0],9-m[1]])
+                
+                    else:               #crrer un nouveau pion addversaire
+                        a = json.loads(cle)
+                        self.can.create_oval(5+(9-a[0])*60, 5+(9-a[1])*60, 55+(9-a[0])*60, 55+(9-a[1])*60, outline='black', fill='green')
+                        self.liste_adverse.append([9-a[0],9-a[1]])
+                self.laMain = 1     #reprendre la main 
+        except: # c'est du vrai chat pas une liste clés valeurs
+            print "h"
+        
             
         #for y in xrange(0,4):
             #for x in xrange(0,10):
